@@ -19,13 +19,18 @@ public class GreetingController {
     }
 
     @GetMapping("/get-time")
-    public LocalTime getTime(){
-        return  LocalTime.now();
+    public LocalTime getTime() {
+        return LocalTime.now();
     }
 
     @GetMapping("/get-date")
-    public LocalDate getDate(){
+    public LocalDate getDate() {
         return LocalDate.now();
+    }
+
+    @GetMapping("/get-found-by")
+    public String getFounderName() {
+        return "Rachita Adhikari";
     }
 
 }
