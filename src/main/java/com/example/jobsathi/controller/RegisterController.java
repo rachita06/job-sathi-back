@@ -1,5 +1,6 @@
 package com.example.jobsathi.controller;
 
+import com.example.jobsathi.dto.request.LoginRequestDTO;
 import com.example.jobsathi.dto.request.RegisterRequestDTO;
 import com.example.jobsathi.service.RegisterService;
 import lombok.RequiredArgsConstructor;
@@ -22,5 +23,10 @@ public class RegisterController {
     public ResponseEntity<String> registerUser(@RequestBody RegisterRequestDTO requestDTO) {
         var response = registerService.registerUser(requestDTO);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequestDTO requestDTO){
+        return ResponseEntity.ok(registerService.login(requestDTO));
     }
 }
