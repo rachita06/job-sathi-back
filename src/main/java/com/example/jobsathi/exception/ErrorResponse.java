@@ -1,7 +1,11 @@
 package com.example.jobsathi.exception;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 /**
- * Created by Rabindra Adhikari on 2/16/26
+ * Created by Rabindra Adhikari on 2/26/26
  */
-public record ErrorResponse(String message, String message2) {
+public record ErrorResponse(LocalDateTime timestamp, int status, String exception, String message, String path,
+                            List<CustomError> errors) {
 }

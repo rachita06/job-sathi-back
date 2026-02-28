@@ -4,25 +4,19 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 /**
- * Created by Rabindra Adhikari on 2/16/26
+ * Created by Rabindra Adhikari on 2/26/26
  */
 @Getter
-public class CustomException extends RuntimeException {
-    private final String message;
+public class CustomException extends RuntimeException{
     private final HttpStatus status;
-    private final Throwable cause;
-
     public CustomException(String message, HttpStatus status) {
         super(message);
-        this.message = message;
         this.status = status;
-        this.cause = null;
     }
 
     public CustomException(String message, HttpStatus status, Throwable cause) {
         super(message, cause);
         this.status = status;
-        this.message = message;
-        this.cause = cause;
     }
+
 }

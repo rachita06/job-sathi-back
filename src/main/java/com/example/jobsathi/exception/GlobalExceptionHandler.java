@@ -21,8 +21,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
-        ErrorResponse error = new ErrorResponse("INTERNAL_ERROR", "An unexpected error occurred");
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception exception,WebRequest webRequest) {
+      ErrorResponse error= new ErrorResponse(LocalDateTime.now(), HttpStatus.INTERNAL_SERVER_ERROR.value(),null,exception.getMessage(), webRequest.getDescription(false),null);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
@@ -30,12 +30,13 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleBadRequestException(BadRequestException exception, WebRequest webRequest) {
         LOGGER.error("Invalid Request parameters : {}", exception.getMessage());
-        return new ErrorResponse("Bad Request", webRequest.getDescription(false));
+        return new ErrorResponse(LocalDateTime.now(),HttpStatus.BAD_REQUEST.value(),null,exception.getMessage(), webRequest.getDescription(false),null);
+
     }
 
     @ExceptionHandler(value = {BadCredentialsException.class, UsernameNotFoundException.class})
-    public ResponseEntity<ErrorResponse> handleAuthenticationException(Exception e){
-        ErrorResponse error = new ErrorResponse("Invalid Credentials", e.getMessage());
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(Exception e,WebRequest webRequest){
+        ErrorResponse error = new ErrorResponse(LocalDateTime.now(),HttpStatus.UNAUTHORIZED.value(),null,e.getMessage(), webRequest.getDescription(false),null);
         return new ResponseEntity<>(error,HttpStatus.UNAUTHORIZED);
 
     }
