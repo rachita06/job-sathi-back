@@ -1,0 +1,14 @@
+package com.example.jobsathi.repository;
+
+import com.example.jobsathi.entity.Register;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+/**
+ * Created by Rabindra Adhikari on 2/11/26
+ */
+public interface RegisterRepository extends JpaRepository<Register, Long> {
+    boolean existsByEmail(String email);
+    Optional<Register> getByEmail(String email);
+}
