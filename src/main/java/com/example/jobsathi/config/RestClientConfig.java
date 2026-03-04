@@ -8,7 +8,7 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
- * Created by Rabindra Adhikari on 2/26/26
+ * Created by Rachita Adhikari on 2/26/26
  */
 @Configuration
 public class RestClientConfig {
