@@ -5,10 +5,7 @@ import com.example.jobsathi.dto.request.RegisterRequestDTO;
 import com.example.jobsathi.service.RegisterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Created by Rabindra Adhikari on 2/11/26
@@ -16,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@CrossOrigin("http://localhost:3000")
 public class RegisterController {
     private final RegisterService registerService;
 
