@@ -3,12 +3,10 @@ package com.example.jobsathi.service.impl;
 import com.example.jobsathi.dto.request.LoginRequestDTO;
 import com.example.jobsathi.dto.request.RegisterRequestDTO;
 import com.example.jobsathi.entity.Register;
-import com.example.jobsathi.exception.BadRequestException;
 import com.example.jobsathi.repository.RegisterRepository;
 import com.example.jobsathi.service.RegisterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,6 +26,7 @@ public class RegisterServiceImpl implements RegisterService {
         Register register =new Register();
         register.setEmail(requestDTO.getEmail());
         register.setPassword(new BCryptPasswordEncoder().encode(requestDTO.getPassword()));
+        register.setRole("ROLE_USER");
         if (registerRepository.existsByEmail(requestDTO.getEmail())){
             return requestDTO.getEmail() +  " already exists";
         }

@@ -20,5 +20,6 @@ public class Register {
     private String email;
     @Column(name = "password")
     private String password;
-
+    @Column(name = "role")
+    private String role;
 }

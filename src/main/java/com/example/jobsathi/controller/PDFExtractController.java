@@ -1,5 +1,6 @@
 package com.example.jobsathi.controller;
 
+import com.example.jobsathi.dto.response.ChatResponseDTO;
 import com.example.jobsathi.dto.response.ResumeScoreResponseDTO;
 import com.example.jobsathi.service.AIService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,10 @@ public class PDFExtractController {
         return ResponseEntity.ok().body(aiService.resumeAnalysis(pdfFile));
     }
 
+    @PostMapping("/chat")
+    public ResponseEntity<ChatResponseDTO> chat(@RequestParam String chat) {
+        return ResponseEntity.ok(aiService.simpleChat(chat));
+    }
 
 }
 

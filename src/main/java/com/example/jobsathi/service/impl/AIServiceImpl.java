@@ -1,12 +1,12 @@
 package com.example.jobsathi.service.impl;
 
 import com.example.jobsathi.dto.response.AiAnalysisResumeResponseDTO;
+import com.example.jobsathi.dto.response.ChatResponseDTO;
 import com.example.jobsathi.dto.response.ResumeScoreResponseDTO;
 import com.example.jobsathi.service.AIService;
 import com.example.jobsathi.service.TFIDFAlgorithm;
 import com.example.jobsathi.service.util.AIPromptBuilder;
 import com.example.jobsathi.service.util.AIResponseParser;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.jobsathi.service.impl.DocumentExtractServiceUtil.getExtension;
-
 
 /**
  * Created by Rabindra Adhikari on 2/28/26
@@ -30,8 +28,8 @@ import static com.example.jobsathi.service.impl.DocumentExtractServiceUtil.getEx
 @Service
 public class AIServiceImpl implements AIService {
 
-    private static final String API_URL="https://router.huggingface.co/v1/chat/completions";
-//    private static final String API_URL="https://router.huggingface.co/v1";
+    //    private static final String API_URL = "https://router.huggingface.co/v1/chat/completions";
+    private static final String API_URL = "https://api.groq.com/openai/v1/chat/completions";
     @Value("${ai.openai.api-key}")
     private String apiKey;
 
@@ -42,14 +40,15 @@ public class AIServiceImpl implements AIService {
     private final ObjectMapper objectMapper;
     private final AIResponseParser parser;
     private final TFIDFAlgorithm tfidfAlgorithm;
+
     @Override
     public ResumeScoreResponseDTO resumeAnalysis(MultipartFile pdfFile) {
-        if (pdfFile.isEmpty()){
+        if (pdfFile.isEmpty()) {
             return ResumeScoreResponseDTO.builder().build();
         }
-        String extension=DocumentExtractServiceUtil.getExtension(pdfFile.getOriginalFilename());
+        String extension = DocumentExtractServiceUtil.getExtension(pdfFile.getOriginalFilename());
 
-        String extractText = DocumentExtractServiceUtil.extractText(pdfFile,extension);
+        String extractText = DocumentExtractServiceUtil.extractText(pdfFile, extension);
 
         LOGGER.info("Calling OpenAI API (model={})...", model);
         try {
@@ -80,13 +79,54 @@ public class AIServiceImpl implements AIService {
 
             String raw = response.getBody();
             LOGGER.info("HF responded ({} chars)", raw != null ? raw.length() : 0);
-           AiAnalysisResumeResponseDTO aiResumeResponse= parser.parse(raw);
+            AiAnalysisResumeResponseDTO aiResumeResponse = parser.parse(raw);
 
-            return tfidfAlgorithm.useTFIDFAlgorithm(aiResumeResponse,extension,extractText);
+            return tfidfAlgorithm.useTFIDFAlgorithm(aiResumeResponse, extension, extractText);
 
         } catch (Exception e) {
             LOGGER.error("OpenAI API call failed: {}", e.getMessage(), e);
             throw new RuntimeException("OpenAI API error: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public ChatResponseDTO simpleChat(String chat) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(apiKey);
+
+            // Build OpenAI-style messages for router
+            List<Map<String, String>> messages = List.of(
+                    Map.of("role", "system", "content", "Try to sound as accurate as possible"),
+                    Map.of("role", "user", "content", chat)
+            );
+
+            Map<String, Object> body = Map.of(
+                    "model", model,
+                    "messages", messages,
+                    "temperature", 0.2
+            );
+
+            HttpEntity<String> request = new HttpEntity<>(objectMapper.writeValueAsString(body), headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    API_URL,
+                    HttpMethod.POST,
+                    request,
+                    String.class
+            );
+
+            String raw = response.getBody();
+            String userResponse = AIResponseParser.jsonToString(raw, objectMapper);
+            if (userResponse == null) {
+                return new ChatResponseDTO("Sorry, cannot generate response", false);
+            }
+            LOGGER.info("HF responded ({} chars)", raw != null ? raw.length() : 0);
+            return new ChatResponseDTO(userResponse, true);
+        } catch (Exception e) {
+            LOGGER.error("OpenAI API call failed: {}", e.getMessage(), e);
+            return new ChatResponseDTO("Sorry for the delay. Please try again letter", false);
         }
     }
 }

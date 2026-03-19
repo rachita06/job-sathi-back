@@ -9,4 +9,8 @@ public class ResumeException extends CustomException{
     public ResumeException(String message) {
         super(message, HttpStatus.BAD_REQUEST);
     }
+
+    public ResumeException(String message, HttpStatus status) {
+        super(message, status);
+    }
 }

@@ -7,12 +7,8 @@ public class AIPromptBuilder {
     private AIPromptBuilder() {
     }
 
-    private static final int MAX_CHARS = 6000;
 
     public static String build(String resumeText) {
-        String excerpt = resumeText.length() > MAX_CHARS
-                ? resumeText.substring(0, MAX_CHARS) : resumeText;
-
         return """
                 You are an expert ATS (Applicant Tracking System) resume analyser.
                 Analyse the resume below and return ONLY a valid JSON object.
@@ -128,6 +124,6 @@ public class AIPromptBuilder {
                 - verbDiversityScore: 7 verb categories × 14pts each (leadership/building/analysis/delivery/communication/optimisation/achievement)
 
                 RESUME TO ANALYSE:
-                """ + excerpt;
+                """ + resumeText;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.jobsathi.service;
 
+import com.example.jobsathi.dto.response.ChatResponseDTO;
 import com.example.jobsathi.dto.response.ResumeScoreResponseDTO;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -8,4 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface AIService {
     ResumeScoreResponseDTO resumeAnalysis(MultipartFile pdfFile);
+
+    ChatResponseDTO simpleChat(String chat);
 }

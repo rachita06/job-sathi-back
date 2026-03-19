@@ -3,7 +3,6 @@ package com.example.jobsathi.service.util;
 import com.example.jobsathi.dto.GrammarIssue;
 import com.example.jobsathi.dto.WeakPhrase;
 import com.example.jobsathi.dto.response.AiAnalysisResumeResponseDTO;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -24,23 +23,97 @@ import java.util.Map;
 public class AIResponseParser {
     private final ObjectMapper objectMapper;
 
-    public AiAnalysisResumeResponseDTO parse(String rawJson) throws JsonProcessingException {
-        String clean = rawJson.trim();
+    public static String jsonToString(String raw, ObjectMapper objectMapper) {
+        try {
+            JsonNode outer = objectMapper.readTree(raw);
+            return outer
+                    .get("choices")
+                    .get(0)
+                    .get("message")
+                    .get("content")
+                    .asText();
+        } catch (Exception e) {
+            LOGGER.error("Failed to parse Json to string: {}", e.getMessage(), e);
+            return null;
+        }
+    }
 
-        JsonNode outer = objectMapper.readTree(clean);
+    private Map<String, Integer> intMap(JsonNode root, String field) {
+        JsonNode n = root.get(field);
+        if (n == null || !n.isObject()) return new LinkedHashMap<>();
+        Map<String, Integer> map = new LinkedHashMap<>();
+        n.fields().forEachRemaining(e -> map.put(e.getKey(), e.getValue().asInt(0)));
+        return map;
+    }
 
-        String content = outer
-                .get("choices")
-                .get(0)
-                .get("message")
-                .get("content")
-                .asText();
-        content = content
-                .replace("'", "\"")
-                .replace("True", "true")
-                .replace("False", "false")
-                .replace("None", "null");
+    private List<WeakPhrase> parseWeakPhrases(JsonNode root) {
+        List<WeakPhrase> list = new ArrayList<>();
+        JsonNode arr = root.get("weakPhrases");
+        if (arr == null) {
+            return List.of();
+        }
+        arr.forEach(n -> {
+            String sev = getStringResponse(n, "severity");
+            list.add(WeakPhrase.builder()
+                    .phrase(getStringResponse(n, "phrase"))
+                    .severity(WeakPhrase.Severity.valueOf(sev))
+                    .reason(getStringResponse(n, "reason"))
+                    .betterAlternative(getStringResponse(n, "betterAlternative"))
+                    .build());
+        });
+        return list;
+    }
 
+
+    private boolean getBooleanResponse(JsonNode root, String field) {
+        return root.get(field).asBoolean();
+    }
+
+    private List<String> getStringList(JsonNode root, String field) {
+        JsonNode n = root.get(field);
+        if (n == null || !n.isArray()) return new ArrayList<>();
+        List<String> list = new ArrayList<>();
+        n.forEach(e -> {
+            if (e.isTextual()) list.add(e.asText());
+        });
+        return list;
+    }
+
+    private Map<String, Integer> getMapResponse(JsonNode root, String field) {
+        JsonNode n = root.get(field);
+        Map<String, Integer> map = new LinkedHashMap<>();
+        n.fields().forEachRemaining(e -> map.put(e.getKey(), e.getValue().asInt(0)));
+        return map;
+
+    }
+
+    private String getStringResponse(JsonNode root, String field) {
+        return root.get(field).asText();
+    }
+
+    private int getIntResponse(JsonNode root, String field) {
+        return root.get(field).asInt();
+    }
+
+    private double getDoubleResponse(JsonNode root, String field) {
+        return root.get(field).asDouble();
+    }
+
+    private List<GrammarIssue> parseGrammarIssues(JsonNode root) {
+        JsonNode arr = root.get("grammarIssues");
+        if (arr == null || !arr.isArray()) return new ArrayList<>();
+        List<GrammarIssue> list = new ArrayList<>();
+        arr.forEach(n -> list.add(GrammarIssue.builder()
+                .errorText(getStringResponse(n, "errorText"))
+                .suggestion(getStringResponse(n, "suggestion"))
+                .message(getStringResponse(n, "message"))
+                .category(getStringResponse(n, "category"))
+                .build()));
+        return list;
+    }
+
+    public AiAnalysisResumeResponseDTO parse(String rawJson) {
+        String content = jsonToString(rawJson, objectMapper);
         try {
             JsonNode root = objectMapper.readTree(content);
             return AiAnalysisResumeResponseDTO.builder()
@@ -129,80 +202,5 @@ public class AIResponseParser {
             return AiAnalysisResumeResponseDTO.builder().build();
         }
     }
-
-    private Map<String, Integer> intMap(JsonNode root, String field) {
-        JsonNode n = root.get(field);
-        if (n == null || !n.isObject()) return new LinkedHashMap<>();
-        Map<String, Integer> map = new LinkedHashMap<>();
-        n.fields().forEachRemaining(e -> map.put(e.getKey(), e.getValue().asInt(0)));
-        return map;
-    }
-
-    private List<WeakPhrase> parseWeakPhrases(JsonNode root) {
-        List<WeakPhrase> list = new ArrayList<>();
-        JsonNode arr = root.get("weakPhrases");
-        if (arr == null) {
-            return List.of();
-        }
-        arr.forEach(n -> {
-            String sev = getStringResponse(n, "severity");
-            list.add(WeakPhrase.builder()
-                    .phrase(getStringResponse(n, "phrase"))
-                    .severity(WeakPhrase.Severity.valueOf(sev))
-                    .reason(getStringResponse(n, "reason"))
-                    .betterAlternative(getStringResponse(n, "betterAlternative"))
-                    .build());
-        });
-        return list;
-    }
-
-
-    private boolean getBooleanResponse(JsonNode root, String field) {
-        return root.get(field).asBoolean();
-    }
-
-    private List<String> getStringList(JsonNode root, String field) {
-        JsonNode n = root.get(field);
-        if (n == null || !n.isArray()) return new ArrayList<>();
-        List<String> list = new ArrayList<>();
-        n.forEach(e -> {
-            if (e.isTextual()) list.add(e.asText());
-        });
-        return list;
-    }
-
-    private Map<String, Integer> getMapResponse(JsonNode root, String field) {
-        JsonNode n = root.get(field);
-        Map<String, Integer> map = new LinkedHashMap<>();
-        n.fields().forEachRemaining(e -> map.put(e.getKey(), e.getValue().asInt(0)));
-        return map;
-
-    }
-
-    private String getStringResponse(JsonNode root, String field) {
-        return root.get(field).asText();
-    }
-
-    private int getIntResponse(JsonNode root, String field) {
-        return root.get(field).asInt();
-    }
-
-    private double getDoubleResponse(JsonNode root, String field) {
-        return root.get(field).asDouble();
-    }
-
-    private List<GrammarIssue> parseGrammarIssues(JsonNode root) {
-        JsonNode arr = root.get("grammarIssues");
-        if (arr == null || !arr.isArray()) return new ArrayList<>();
-        List<GrammarIssue> list = new ArrayList<>();
-        arr.forEach(n -> list.add(GrammarIssue.builder()
-                .errorText(getStringResponse(n, "errorText"))
-                .suggestion(getStringResponse(n, "suggestion"))
-                .message(getStringResponse(n, "message"))
-                .category(getStringResponse(n, "category"))
-                .build()));
-        return list;
-    }
-
 
 }
