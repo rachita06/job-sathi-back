@@ -2,6 +2,7 @@ package com.example.jobsathi.controller;
 
 import com.example.jobsathi.dto.request.LoginRequestDTO;
 import com.example.jobsathi.dto.request.RegisterRequestDTO;
+import com.example.jobsathi.dto.response.LoginResponseDTO;
 import com.example.jobsathi.service.RegisterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class RegisterController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequestDTO requestDTO){
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO requestDTO) {
         return ResponseEntity.ok(registerService.login(requestDTO));
     }
 }

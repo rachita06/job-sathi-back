@@ -27,12 +27,9 @@ import java.util.Map;
 @Slf4j
 @Service
 public class AIServiceImpl implements AIService {
-
-    //    private static final String API_URL = "https://router.huggingface.co/v1/chat/completions";
     private static final String API_URL = "https://api.groq.com/openai/v1/chat/completions";
     @Value("${ai.openai.api-key}")
     private String apiKey;
-
     @Value("${ai.openai.model}")
     private String model;
 
