@@ -35,7 +35,7 @@ public class RegisterServiceImpl implements RegisterService {
         Register register = new Register();
         register.setEmail(requestDTO.getEmail());
         register.setPassword(passwordEncoder.encode(requestDTO.getPassword()));
-        register.setRole(Role.ADMIN.name());
+        register.setRole(Role.USER.name());
         if (registerRepository.existsByEmail(requestDTO.getEmail())) {
             return requestDTO.getEmail() + " already exists";
         }

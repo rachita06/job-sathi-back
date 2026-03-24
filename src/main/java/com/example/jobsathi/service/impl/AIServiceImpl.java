@@ -3,7 +3,12 @@ package com.example.jobsathi.service.impl;
 import com.example.jobsathi.dto.response.AiAnalysisResumeResponseDTO;
 import com.example.jobsathi.dto.response.ChatResponseDTO;
 import com.example.jobsathi.dto.response.ResumeScoreResponseDTO;
+import com.example.jobsathi.entity.Register;
+import com.example.jobsathi.entity.ResumeEntity;
+import com.example.jobsathi.repository.RegisterRepository;
+import com.example.jobsathi.repository.ResumeRepository;
 import com.example.jobsathi.service.AIService;
+import com.example.jobsathi.service.AuthenticatedUserService;
 import com.example.jobsathi.service.TFIDFAlgorithm;
 import com.example.jobsathi.service.util.AIPromptBuilder;
 import com.example.jobsathi.service.util.AIResponseParser;
@@ -12,12 +17,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 /**
@@ -27,6 +35,7 @@ import java.util.Map;
 @Slf4j
 @Service
 public class AIServiceImpl implements AIService {
+
     private static final String API_URL = "https://api.groq.com/openai/v1/chat/completions";
     @Value("${ai.openai.api-key}")
     private String apiKey;
@@ -37,15 +46,32 @@ public class AIServiceImpl implements AIService {
     private final ObjectMapper objectMapper;
     private final AIResponseParser parser;
     private final TFIDFAlgorithm tfidfAlgorithm;
+    private final ResumeRepository resumeRepository;
+    private final AuthenticatedUserService authenticatedUserService;
 
     @Override
     public ResumeScoreResponseDTO resumeAnalysis(MultipartFile pdfFile) {
         if (pdfFile.isEmpty()) {
             return ResumeScoreResponseDTO.builder().build();
         }
-        String extension = DocumentExtractServiceUtil.getExtension(pdfFile.getOriginalFilename());
+        String originalFileName = pdfFile.getOriginalFilename();
+        String extension = DocumentExtractServiceUtil.getExtension(originalFileName);
 
         String extractText = DocumentExtractServiceUtil.extractText(pdfFile, extension);
+
+        // saving resume
+        try {
+            String filePath = AIServiceImplUtil.saveFileToDir(originalFileName, pdfFile);
+            ResumeEntity resume = new ResumeEntity();
+            resume.setOriginalFileName(originalFileName);
+            resume.setFilePath(filePath);
+            resume.setFileType(extension);
+            resume.setFileSize(pdfFile.getSize());
+            resume.setUser(authenticatedUserService.getLoggedInUser());
+            resumeRepository.save(resume);
+        } catch (IOException e) {
+            LOGGER.error("Error while saving file to local dir {}", e.getMessage());
+        }
 
         LOGGER.info("Calling OpenAI API (model={})...", model);
         try {
