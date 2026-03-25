@@ -35,7 +35,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/register", "/api/login").permitAll()
-                        .requestMatchers("/api/job-sathi/**").hasRole(Role.USER.name())
+                        .requestMatchers("/api/job-sathi/**", "/api/admin/user").hasRole(Role.USER.name())
                         .anyRequest().authenticated()
                 ).addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

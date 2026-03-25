@@ -1,7 +1,8 @@
 package com.example.jobsathi.controller;
 
 import com.example.jobsathi.dto.response.UserResponseDTO;
-import com.example.jobsathi.repository.RegisterRepository;
+import com.example.jobsathi.service.admin.AdminService;
+import com.example.jobsathi.util.ResponseWrapperDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by Rabindra Adhikari on 3/9/26
@@ -21,14 +21,12 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class AdminController {
-    private final RegisterRepository registerRepository;
+    private final AdminService adminService;
 
     @GetMapping("/user")
-    ResponseEntity<List<UserResponseDTO>> getUsers() {
-        List<UserResponseDTO> users = registerRepository.findAll()
-                .stream()
-                .map(user -> new UserResponseDTO(user.getId(), user.getEmail()))
-                .collect(Collectors.toList());
+    ResponseEntity<ResponseWrapperDTO<List<UserResponseDTO>>> getUsers() {
+        LOGGER.info("Started fetching all user");
+        var users = adminService.getUsers();
         return ResponseEntity.ok(users);
     }
 }

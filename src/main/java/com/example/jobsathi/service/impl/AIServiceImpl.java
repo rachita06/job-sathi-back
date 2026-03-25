@@ -3,9 +3,7 @@ package com.example.jobsathi.service.impl;
 import com.example.jobsathi.dto.response.AiAnalysisResumeResponseDTO;
 import com.example.jobsathi.dto.response.ChatResponseDTO;
 import com.example.jobsathi.dto.response.ResumeScoreResponseDTO;
-import com.example.jobsathi.entity.Register;
 import com.example.jobsathi.entity.ResumeEntity;
-import com.example.jobsathi.repository.RegisterRepository;
 import com.example.jobsathi.repository.ResumeRepository;
 import com.example.jobsathi.service.AIService;
 import com.example.jobsathi.service.AuthenticatedUserService;
@@ -17,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 
 /**
@@ -149,6 +145,7 @@ public class AIServiceImpl implements AIService {
             return new ChatResponseDTO(userResponse, true);
         } catch (Exception e) {
             LOGGER.error("OpenAI API call failed: {}", e.getMessage(), e);
+            //TODO throw the ex here
             return new ChatResponseDTO("Sorry for the delay. Please try again letter", false);
         }
     }
