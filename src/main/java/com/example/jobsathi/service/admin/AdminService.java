@@ -1,5 +1,6 @@
 package com.example.jobsathi.service.admin;
 
+import com.example.jobsathi.dto.response.AdminResumeSummaryResponseDTO;
 import com.example.jobsathi.dto.response.UserResponseDTO;
 import com.example.jobsathi.util.ResponseWrapperDTO;
 
@@ -12,4 +13,6 @@ public interface AdminService {
     ResponseWrapperDTO<List<UserResponseDTO>> getUsers();
 
     ResponseWrapperDTO<UserResponseDTO> getUser(String username);
+
+    AdminResumeSummaryResponseDTO getUserSummary();
 }

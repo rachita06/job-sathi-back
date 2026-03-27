@@ -1,12 +1,16 @@
 package com.example.jobsathi.controller;
 
+import com.example.jobsathi.dto.response.AdminResumeSummaryResponseDTO;
 import com.example.jobsathi.dto.response.UserResponseDTO;
 import com.example.jobsathi.service.admin.AdminService;
 import com.example.jobsathi.util.ResponseWrapperDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -33,4 +37,12 @@ public class AdminController {
         ResponseWrapperDTO<UserResponseDTO> user = adminService.getUser(username);
         return ResponseEntity.ok(user);
     }
+
+    @GetMapping("/summary")
+    public ResponseEntity<AdminResumeSummaryResponseDTO> getSummary() {
+        LOGGER.info("Started Getting Admin Summary for user");
+        AdminResumeSummaryResponseDTO summary = adminService.getUserSummary();
+        return ResponseEntity.ok(summary);
+    }
+
 }

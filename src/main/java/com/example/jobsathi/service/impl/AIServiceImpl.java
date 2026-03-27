@@ -45,6 +45,7 @@ public class AIServiceImpl implements AIService {
     private final ResumeRepository resumeRepository;
     private final AuthenticatedUserService authenticatedUserService;
 
+    // TODO refactor to common  AI model calling
     @Override
     public ResumeScoreResponseDTO resumeAnalysis(MultipartFile pdfFile) {
         if (pdfFile.isEmpty()) {

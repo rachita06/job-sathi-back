@@ -1,12 +1,14 @@
 package com.example.jobsathi.service.admin;
 
+import com.example.jobsathi.dto.response.AdminResumeSummaryResponseDTO;
 import com.example.jobsathi.dto.response.UserResponseDTO;
 import com.example.jobsathi.entity.Register;
+import com.example.jobsathi.entity.ResumeEntity;
 import com.example.jobsathi.repository.RegisterRepository;
+import com.example.jobsathi.repository.ResumeRepository;
 import com.example.jobsathi.util.ResponseWrapperDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.loomchild.segment.util.ResourceNotFoundException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -23,11 +25,13 @@ import java.util.stream.Collectors;
 @Service
 public class AdminServiceImpl implements AdminService {
     private final RegisterRepository registerRepository;
+    private final ResumeRepository resumeRepository;
 
     @Override
     public ResponseWrapperDTO<List<UserResponseDTO>> getUsers() {
         Instant start = Instant.now();
         ResponseWrapperDTO<List<UserResponseDTO>> responseWrapperDTO = new ResponseWrapperDTO<>();
+        // TODO add pagination here
         var response = registerRepository.findAll()
                 .stream()
                 .map(user -> new UserResponseDTO(user.getRole(), user.getEmail()))
@@ -56,4 +60,24 @@ public class AdminServiceImpl implements AdminService {
         LOGGER.info("Successfully fetched user for email: {} | Time taken: {} ms", email, Duration.between(start, Instant.now()).toMillis());
         return responseWrapperDTO;
     }
+
+    @Override
+    public AdminResumeSummaryResponseDTO getUserSummary() {
+        Instant start = Instant.now();
+        List<ResumeEntity> resumeEntities = resumeRepository.findAll();
+        long totalUpload = resumeEntities.size();
+
+        long atsSuccess = resumeEntities.stream()
+                .filter(resume -> resume.getAtsScore() != null && resume.getAtsScore() != 0)
+                .count();
+
+        long atsFailed = resumeEntities.stream()
+                .filter(resume -> resume.getAtsScore() != null && resume.getAtsScore() == 0)
+                .count();
+
+        LOGGER.info("Total time taken to fetch the user summary is {}", Duration.between(start, Instant.now()).toMillis());
+        return new AdminResumeSummaryResponseDTO(totalUpload, atsSuccess, atsFailed);
+    }
+
+
 }
