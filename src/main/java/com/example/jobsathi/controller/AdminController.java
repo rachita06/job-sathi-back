@@ -6,9 +6,7 @@ import com.example.jobsathi.util.ResponseWrapperDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,10 +21,16 @@ import java.util.List;
 public class AdminController {
     private final AdminService adminService;
 
-    @GetMapping("/user")
-    ResponseEntity<ResponseWrapperDTO<List<UserResponseDTO>>> getUsers() {
+    @GetMapping("/users")
+  public  ResponseEntity<ResponseWrapperDTO<List<UserResponseDTO>>> getUsers() {
         LOGGER.info("Started fetching all user");
         var users = adminService.getUsers();
         return ResponseEntity.ok(users);
+    }
+    @GetMapping("/user/{username}")
+    public ResponseEntity<ResponseWrapperDTO<UserResponseDTO>> getUser(@PathVariable String username) {
+        LOGGER.info("Started fetching user by {}", username);
+        ResponseWrapperDTO<UserResponseDTO> user = adminService.getUser(username);
+        return ResponseEntity.ok(user);
     }
 }

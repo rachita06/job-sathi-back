@@ -10,4 +10,6 @@ import java.util.List;
  */
 public interface AdminService {
     ResponseWrapperDTO<List<UserResponseDTO>> getUsers();
+
+    ResponseWrapperDTO<UserResponseDTO> getUser(String username);
 }
