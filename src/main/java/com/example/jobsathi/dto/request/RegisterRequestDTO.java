@@ -11,4 +11,5 @@ import lombok.Setter;
 public class RegisterRequestDTO {
     private String email;
     private String password;
+    private String firstName;
 }

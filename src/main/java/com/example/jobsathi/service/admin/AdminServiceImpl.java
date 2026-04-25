@@ -4,6 +4,7 @@ import com.example.jobsathi.dto.response.AdminResumeSummaryResponseDTO;
 import com.example.jobsathi.dto.response.UserResponseDTO;
 import com.example.jobsathi.entity.Register;
 import com.example.jobsathi.entity.ResumeEntity;
+import com.example.jobsathi.exception.BadRequestException;
 import com.example.jobsathi.repository.RegisterRepository;
 import com.example.jobsathi.repository.ResumeRepository;
 import com.example.jobsathi.util.ResponseWrapperDTO;
@@ -34,7 +35,7 @@ public class AdminServiceImpl implements AdminService {
         // TODO add pagination here
         var response = registerRepository.findAll()
                 .stream()
-                .map(user -> new UserResponseDTO(user.getRole(), user.getEmail()))
+                .map(user -> new UserResponseDTO(user.getRole(), user.getEmail(), user.getFirstName(), user.getRegisteredId()))
                 .collect(Collectors.toList());
         responseWrapperDTO.setData(response);
         responseWrapperDTO.setSummary(new ResponseWrapperDTO.Summary(response.size()));
@@ -46,13 +47,13 @@ public class AdminServiceImpl implements AdminService {
     public ResponseWrapperDTO<UserResponseDTO> getUser(String email) {
         Instant start = Instant.now();
         LOGGER.info("Fetching user profile for email: {}", email);
-        Register user = registerRepository.findByEmail(email);
+        Register user = registerRepository.getByEmail(email).orElseThrow(() -> new BadRequestException("User not found"));
 
-        if (user==null){
+        if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
 
-        UserResponseDTO response = new UserResponseDTO(user.getRole(), user.getEmail());
+        UserResponseDTO response = new UserResponseDTO(user.getRole(), user.getEmail(), user.getFirstName(), user.getRegisteredId());
         ResponseWrapperDTO<UserResponseDTO> responseWrapperDTO = new ResponseWrapperDTO<>();
         responseWrapperDTO.setData(response);
         responseWrapperDTO.setSummary(new ResponseWrapperDTO.Summary(1));
