@@ -26,7 +26,7 @@ public class AdminController {
     private final AdminService adminService;
 
     @GetMapping("/users")
-  public  ResponseEntity<ResponseWrapperDTO<List<UserResponseDTO>>> getUsers() {
+    public ResponseEntity<ResponseWrapperDTO<List<UserResponseDTO>>> getUsers() {
         LOGGER.info("Started fetching all user");
         var users = adminService.getUsers();
         return ResponseEntity.ok(users);
@@ -38,7 +38,7 @@ public class AdminController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/summary")
+    @GetMapping("resumes/summary")
     public ResponseEntity<AdminResumeSummaryResponseDTO> getSummary() {
         LOGGER.info("Started Getting Admin Summary for user");
         AdminResumeSummaryResponseDTO summary = adminService.getUserSummary();

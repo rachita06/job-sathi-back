@@ -19,7 +19,10 @@ public class Register {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "email",unique = true)
+    private String registeredId;
+    @Column(name = "firstname", unique = true)
+    private String firstName;
+    @Column(name = "email", unique = true)
     private String email;
     @Column(name = "password")
     private String password;
