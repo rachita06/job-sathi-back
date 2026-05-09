@@ -129,4 +129,6 @@ public class ResumeScoreResponseDTO {
     private int bulletCount;
     private String fileType;
     private String extractedTextPreview;
+
+    private String jdMatchScore;
 }

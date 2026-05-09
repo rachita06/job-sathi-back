@@ -21,9 +21,12 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/job-sathi")
 public class PDFExtractController {
     private final AIService aiService;
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, value = "/analysis")
-    public ResponseEntity<ResumeScoreResponseDTO> resumeAnalysisTfIDFAlgo(@RequestParam("file") final MultipartFile pdfFile) {
-        return ResponseEntity.ok().body(aiService.resumeAnalysis(pdfFile));
+    public ResponseEntity<ResumeScoreResponseDTO> resumeAnalysisTfIDFAlgo(@RequestParam("file") final MultipartFile pdfFile,
+                                                                          @RequestParam(value = "jobDesc", required = false) final String jobDesc,
+                                                                          @RequestParam(value = "targetRole", required = false) final String targetRole) {
+        return ResponseEntity.ok().body(aiService.resumeAnalysis(pdfFile, jobDesc, targetRole));
     }
 
     @PostMapping("/chat")

@@ -110,5 +110,6 @@ public class AiAnalysisResumeResponseDTO {
     private List<String> redFlags;
     private List<String> warnings;
     private List<String> suggestions;
+    private String jdMatchScore;
 }
 

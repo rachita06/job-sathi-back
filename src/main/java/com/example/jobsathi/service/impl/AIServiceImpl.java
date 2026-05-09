@@ -47,7 +47,7 @@ public class AIServiceImpl implements AIService {
 
     // TODO refactor to common  AI model calling
     @Override
-    public ResumeScoreResponseDTO resumeAnalysis(MultipartFile pdfFile) {
+    public ResumeScoreResponseDTO resumeAnalysis(MultipartFile pdfFile,String jobDesc,String targetRole) {
         if (pdfFile.isEmpty()) {
             return ResumeScoreResponseDTO.builder().build();
         }
@@ -79,7 +79,7 @@ public class AIServiceImpl implements AIService {
             // Build OpenAI-style messages for router
             List<Map<String, String>> messages = List.of(
                     Map.of("role", "system", "content", "You are an expert ATS resume analyser. Return only valid JSON."),
-                    Map.of("role", "user", "content", AIPromptBuilder.build(extractText))
+                    Map.of("role", "user", "content", AIPromptBuilder.build(extractText, jobDesc, targetRole))
             );
 
             Map<String, Object> body = Map.of(

@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
  * Created by Rabindra Adhikari on 2/28/26
  */
 public interface AIService {
-    ResumeScoreResponseDTO resumeAnalysis(MultipartFile pdfFile);
+    ResumeScoreResponseDTO resumeAnalysis(MultipartFile pdfFile,String jobDesc,String targetRole);
 
     ChatResponseDTO simpleChat(String chat);
 }
